@@ -12,3 +12,4 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(REPO_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 add_subdirectory(server)
+add_subdirectory(examples)
