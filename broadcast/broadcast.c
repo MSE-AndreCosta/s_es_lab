@@ -14,7 +14,7 @@ static char *get_broadcast_payload(void);
 
 void *broadcast_sender_task(void *arg)
 {
-	bool *shutdown = (bool *)arg;
+	server_t *server = (server_t *)arg;
 	char *mqtt_server_url = NULL;
 
 	char *payload = get_broadcast_payload();
@@ -29,7 +29,7 @@ void *broadcast_sender_task(void *arg)
 		return NULL;
 	}
 
-	while (!shutdown) {
+	while (!server->shutdown) {
 		if (!payload) {
 			payload = get_broadcast_payload();
 			sleep(1);
