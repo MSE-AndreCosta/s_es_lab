@@ -1,4 +1,5 @@
 #include "desktop_ui.h"
+#include "desktop_ui_gen.h"
 #include "msgq/msgq.h"
 #include "protocol/protocol.h"
 #include <assert.h>
@@ -9,6 +10,7 @@ static void led_cmd_observer(lv_observer_t *observer, lv_subject_t *subject);
 static void sensor_refresh_observer(lv_observer_t *observer, lv_subject_t *subject);
 static void chat_send_observer(lv_observer_t *observer, lv_subject_t *subject);
 static void ui_feeder(lv_timer_t *timer);
+static void clock_timer_cb(lv_timer_t *timer);
 
 static void chat_log_append(const char *line);
 
@@ -32,6 +34,8 @@ bool ui_interface_init(msgq_t *tx_fifo, msgq_t *rx_fifo)
 		return false;
 	}
 
+	lv_indev_t *mouse = lv_sdl_mouse_create();
+	assert(mouse);
 	lv_indev_t *kb = lv_sdl_keyboard_create();
 	assert(kb);
 	lv_group_t *g = lv_group_create();
@@ -47,8 +51,12 @@ bool ui_interface_init(msgq_t *tx_fifo, msgq_t *rx_fifo)
 	lv_subject_add_observer(&cmd_led_green, led_cmd_observer, (void *)(uintptr_t)LED_GREEN);
 	lv_subject_add_observer(&cmd_led_blue, led_cmd_observer, (void *)(uintptr_t)LED_BLUE);
 	lv_subject_add_observer(&cmd_chat_send, chat_send_observer, NULL);
+	lv_subject_set_int(&net_connected, 0);
+	lv_subject_copy_string(&net_ip, "Disconnected");
 
-	lv_timer_t *t = lv_timer_create(ui_feeder, 5, NULL);
+	lv_timer_create(ui_feeder, 5, NULL);
+	lv_timer_t *t = lv_timer_create(clock_timer_cb, 1000, NULL);
+	lv_timer_ready(t);
 	return true;
 }
 
@@ -88,11 +96,9 @@ static void chat_send_observer(lv_observer_t *observer, lv_subject_t *subject)
 
 static void ui_feeder(lv_timer_t *timer)
 {
-}
-static void timer(lv_observer_t *observer, lv_subject_t *subject)
-{
 	protocol_message_t *message;
 	while ((message = msgq_try_pop(rx))) {
+		lv_subject_set_int(&net_connected, 1);
 		switch (message->type) {
 		case PMT_CHAT_MESSAGE: {
 			if (message->data.message.id <= latest_message_id) {
@@ -102,6 +108,7 @@ static void timer(lv_observer_t *observer, lv_subject_t *subject)
 			break;
 		}
 		case PMT_JOYSTICK: {
+			LV_LOG_USER("Joystick %d %d", message->type, message->data.joystick);
 			uint32_t x, y;
 
 			switch (message->data.joystick) {
@@ -111,23 +118,23 @@ static void timer(lv_observer_t *observer, lv_subject_t *subject)
 				break;
 			case UP:
 				x = 0;
-				y = -25;
+				y = -1;
 				break;
 			case DOWN:
 				x = 0;
-				y = 25;
+				y = 1;
 				break;
 			case LEFT:
-				x = -25;
+				x = -1;
 				y = 0;
 				break;
 			case RIGHT:
-				x = 25;
+				x = 1;
 				y = 0;
 				break;
 			}
-			lv_subject_set_int(&joy_x, x);
-			lv_subject_set_int(&joy_y, y);
+			lv_subject_set_int(&joy_x, x * 50);
+			lv_subject_set_int(&joy_y, y * 50);
 			break;
 		}
 		case PMT_SENSOR:
@@ -141,6 +148,7 @@ static void timer(lv_observer_t *observer, lv_subject_t *subject)
 			lv_subject_set_int(&player_y, message->data.player_position.y);
 			break;
 		case PMT_IP_ADDRESS:
+
 			lv_subject_copy_string(&net_ip, message->data.ipv4);
 			break;
 		case PMT_LED:
@@ -193,4 +201,28 @@ static void chat_log_append(const char *line)
 	}
 
 	lv_subject_copy_string(&chat_log, buf);
+}
+
+static void clock_timer_cb(lv_timer_t *timer)
+{
+	LV_UNUSED(timer);
+
+	time_t now = time(NULL);
+	struct tm tm_now;
+	localtime_r(&now, &tm_now);
+
+	int h = tm_now.tm_hour;
+	int m = tm_now.tm_min;
+	int s = tm_now.tm_sec;
+
+	lv_subject_set_int(&clock_hour_angle, ((h % 12) * 30 + m / 2) * 10);
+	lv_subject_set_int(&clock_min_angle, (m * 6 + s / 10) * 10);
+	lv_subject_set_int(&clock_sec_angle, s * 60);
+
+	char buf[32];
+	lv_snprintf(buf, sizeof(buf), "%02d:%02d:%02d", h, m, s);
+	lv_subject_copy_string(&clock_time, buf);
+
+	strftime(buf, sizeof(buf), "%a %d %b %Y", &tm_now);
+	lv_subject_copy_string(&clock_date, buf);
 }
