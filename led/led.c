@@ -115,16 +115,27 @@ int led_get(led_id_t led, bool *state){
 
 int led_deinit(void)
 {
+	if(request) {
+		gpiod_line_request_release(request);
+		request = NULL;
+	}
 
-	gpiod_line_request_release(request);
-	gpiod_request_config_free(req_cfg);
-	gpiod_line_config_free(line_cfg);
-	gpiod_line_settings_free(settings);
-	gpiod_chip_close(chip);
+	if(req_cfg) {
+		gpiod_request_config_free(req_cfg);
+		req_cfg = NULL;
+	}
+	if(line_cfg) {
+		gpiod_line_config_free(line_cfg);
+		line_cfg = NULL;
+	}
+	if(settings) {
+		gpiod_line_settings_free(settings);
+		settings = NULL;
+	}
+	if(chip) {
+		gpiod_chip_close(chip);
+		chip = NULL;
+	}
 
-	request = NULL;
-	req_cfg = NULL;
-	line_cfg = NULL;
-	settings = NULL;
-	chip = NULL;
+	return 0;
 }

@@ -1,7 +1,7 @@
 #ifndef LED_H
 #define LED_H
 
-#include "protocol.h"
+#include "protocol/protocol.h"
 
 int led_init(void);
 int led_set(led_id_t led, bool state);

@@ -21,6 +21,7 @@ typedef struct {
 	joystick_t joystick;
 	vector2_t player_position;
 	pthread_mutex_t data_mutex;
+	led_t leds[3];
 	msgq_t tx;
 	bool shutdown;
 } server_t;
