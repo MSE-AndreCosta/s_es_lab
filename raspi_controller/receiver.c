@@ -8,21 +8,27 @@
 #include <string.h>
 
 static void *sender_task(void *arg);
-static inline void encode_and_send(udp_socket_t *socket, protocol_message_t *message);
+static void encode_and_send(udp_socket_t *socket, const protocol_message_t *message);
 
-static bool create_sender(controller_t *controller, protocol_message_t *message, pthread_t *thread)
+static bool create_sender(controller_t *controller, const protocol_message_t *message,
+			 pthread_t *thread)
 {
+	char address[sizeof(message->data.ipv4)];
 
 	assert(message->type == PMT_IP_ADDRESS);
 
-	char *port_start = strchr(message->data.ipv4, ':');
+	/* work on a copy: the message is handed over to the UI afterwards */
+	strncpy(address, message->data.ipv4, sizeof(address) - 1);
+	address[sizeof(address) - 1] = '\0';
+
+	char *port_start = strchr(address, ':');
 	if (!port_start) {
 		return false;
 	}
 
 	*port_start = '\0';
 	uint16_t port = atoi(port_start + 1);
-	const char *ip = message->data.ipv4;
+	const char *ip = address;
 
 	controller->sender_socket = udp_create_sender(ip, port);
 	if (!controller->sender_socket) {
@@ -58,11 +64,17 @@ void *receiver_task(void *arg)
 	bool has_sender_thread = false;
 
 	while (!controller->shutdown) {
-		ssize_t n = udp_recv_frame(controller->receiver_socket, &buffer, sizeof(buffer));
+		ssize_t n = udp_recv_frame(controller->receiver_socket, buffer, sizeof(buffer));
 
+		if (n < 0) {
+			perror("controller: recv failed");
+			continue;
+		}
 		if (n == 0) {
 			continue;
 		}
+
+		/* a message is only kept across iterations when it could not be used */
 		if (!message) {
 			message = malloc(sizeof(*message));
 		}
@@ -70,18 +82,20 @@ void *receiver_task(void *arg)
 			continue;
 		}
 
-		bool decoded = protocol_message_decode(buffer, n, message);
-		if (!decoded) {
+		if (!protocol_message_decode(buffer, (size_t)n, message)) {
 			continue;
 		}
 
 		if (!has_sender_thread && message->type == PMT_IP_ADDRESS) {
 			has_sender_thread = create_sender(controller, message, &sender_thread);
 		}
-		printf("Message %d\n", message->type);
+
 		msgq_push(&controller->ui_rx, message);
+		/* ownership moved to the UI, the next frame needs its own message */
+		message = NULL;
 	}
 
+	free(message);
 	if (has_sender_thread) {
 		msgq_push(&controller->ui_tx, NULL);
 		pthread_join(sender_thread, NULL);
@@ -93,11 +107,11 @@ void *receiver_task(void *arg)
 void *sender_task(void *arg)
 {
 	controller_t *controller = (controller_t *)arg;
-	protocol_message_t *message = NULL;
-	bool sender_created = false;
-	protocol_message_t request_message = {.type = PMT_REQUEST};
+	const protocol_message_t request_message = {.type = PMT_REQUEST};
 
+	/* ask the server for the current state right after discovering it */
 	encode_and_send(controller->sender_socket, &request_message);
+
 	while (!controller->shutdown) {
 		protocol_message_t *message = msgq_pop(&controller->ui_tx);
 		if (!message) {
@@ -112,15 +126,15 @@ void *sender_task(void *arg)
 	return NULL;
 }
 
-static inline void encode_and_send(udp_socket_t *socket, protocol_message_t *message)
+static void encode_and_send(udp_socket_t *socket, const protocol_message_t *message)
 {
-
 	char *payload = protocol_message_encode(message);
 
 	if (!payload) {
-		free(message);
+		fprintf(stderr, "controller: failed to encode message %d\n", message->type);
 		return;
 	}
-	const size_t payload_size = strlen(payload) + 1;
-	udp_send_frame(socket, payload, payload_size);
+
+	udp_send_frame(socket, payload, strlen(payload));
+	protocol_message_delete(payload);
 }

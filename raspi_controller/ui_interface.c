@@ -3,11 +3,12 @@
 #include "msgq/msgq.h"
 #include "protocol/protocol.h"
 #include <assert.h>
+#include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <controller.h>
 
 static void led_cmd_observer(lv_observer_t *observer, lv_subject_t *subject);
-static void sensor_refresh_observer(lv_observer_t *observer, lv_subject_t *subject);
 static void chat_send_observer(lv_observer_t *observer, lv_subject_t *subject);
 static void ui_feeder(lv_timer_t *timer);
 static void clock_timer_cb(lv_timer_t *timer);
@@ -86,10 +87,15 @@ static void chat_send_observer(lv_observer_t *observer, lv_subject_t *subject)
 	}
 
 	protocol_message_t *message = malloc(sizeof(*message));
+	if (!message) {
+		return;
+	}
 	const size_t max_message_size = sizeof(message->data.message.data) - 1;
 	message->type = PMT_CHAT_MESSAGE;
 	lv_strncpy((char *)message->data.message.data, msg, max_message_size);
 	message->data.message.data[max_message_size] = '\0';
+	/* the server assigns the real id when it stores the message */
+	message->data.message.id = 0;
 
 	msgq_push(tx, message);
 }
@@ -101,15 +107,17 @@ static void ui_feeder(lv_timer_t *timer)
 		lv_subject_set_int(&net_connected, 1);
 		switch (message->type) {
 		case PMT_CHAT_MESSAGE: {
+			/* the server replays its history on connect, skip what we have */
 			if (message->data.message.id <= latest_message_id) {
 				break;
 			}
+			latest_message_id = message->data.message.id;
 			chat_log_append(message->data.message.data);
 			break;
 		}
 		case PMT_JOYSTICK: {
 			LV_LOG_USER("Joystick %d %d", message->type, message->data.joystick);
-			uint32_t x, y;
+			int32_t x, y;
 
 			switch (message->data.joystick) {
 			case NONE:
@@ -138,9 +146,10 @@ static void ui_feeder(lv_timer_t *timer)
 			break;
 		}
 		case PMT_SENSOR:
-			lv_subject_set_int(&sensor_temp_c, message->data.sensor.temp_c);
-			lv_subject_set_int(&sensor_temp_f, message->data.sensor.temp_f);
-			lv_subject_set_int(&sensor_humidity, message->data.sensor.humidity);
+			lv_subject_set_int(&sensor_temp_c, (int32_t)lroundf(message->data.sensor.temp_c));
+			lv_subject_set_int(&sensor_temp_f, (int32_t)lroundf(message->data.sensor.temp_f));
+			lv_subject_set_int(&sensor_humidity,
+					   (int32_t)lroundf(message->data.sensor.humidity));
 			lv_subject_copy_string(&sensor_status, "Connected");
 			break;
 		case PMT_PLAYER_POSITION:
@@ -163,10 +172,13 @@ static void ui_feeder(lv_timer_t *timer)
 				lv_subject_set_int(&led_blue, message->data.led.on);
 				break;
 			}
+			break;
 		case PMT_REQUEST:
 			/* not for us*/
 			break;
 		}
+
+		free(message);
 	}
 }
 

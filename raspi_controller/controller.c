@@ -2,6 +2,7 @@
 #include <lvgl.h>
 #include <desktop_ui.h>
 
+#include "camera.h"
 #include "controller.h"
 #include "msgq/msgq.h"
 #include "ui_interface.h"
@@ -30,10 +31,15 @@ int main(void)
 		return 1;
 	}
 
+	if (!camera_init(NULL)) {
+		LV_LOG_WARN("the camera stream is not available");
+	}
+
 	pthread_create(&receiver_thread, NULL, receiver_task, &controller);
 
 	ui_interface_loop(&controller);
 	pthread_join(receiver_thread, NULL);
+	camera_deinit();
 
 	return 0;
 }
