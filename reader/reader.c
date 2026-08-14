@@ -35,11 +35,8 @@ static void update_joystick(server_t *server)
 	message->data.joystick = dir;
 	msgq_push(&server->tx, message);
 }
-static void poll_sensor(server_t *server, int timer_fd)
+static void poll_sensor(server_t *server)
 {
-	uint64_t exp;
-	read(timer_fd, &exp, sizeof(exp));
-
 	sensor_data_t sensor;
 	if (sht_read(&sensor) != 0) {
 		return;
@@ -132,7 +129,9 @@ void *reader_task(void *arg)
 			if (events[i].data.fd == gpio_fd) {
 				update_joystick(server);
 			} else if (events[i].data.fd == timer_fd) {
-				poll_sensor(server, timer_fd);
+				uint64_t exp;
+				read(timer_fd, &exp, sizeof(exp));
+				poll_sensor(server);
 				poll_leds(server);
 			}
 		}
