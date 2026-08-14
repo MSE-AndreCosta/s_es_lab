@@ -52,19 +52,12 @@ bool ui_interface_init(msgq_t *tx_fifo, msgq_t *rx_fifo)
 
 	desktop_ui_init(NULL);
 	lv_screen_load(main_screen_create());
-	// lv_obj_t *ta = lv_obj_find_by_name(lv_screen_active(), "log");
-	// lv_obj_t *send = lv_obj_find_by_name(lv_screen_active(), "send");
-	//
-	// lv_group_remove_all_objs(g);
-	// lv_group_add_obj(g, ta);
-	// lv_group_add_obj(g, send);
-	//
 	lv_subject_add_observer(&cmd_led_red, led_cmd_observer, (void *)(uintptr_t)LED_RED);
 	lv_subject_add_observer(&cmd_led_green, led_cmd_observer, (void *)(uintptr_t)LED_GREEN);
 	lv_subject_add_observer(&cmd_led_blue, led_cmd_observer, (void *)(uintptr_t)LED_BLUE);
 	lv_subject_add_observer(&cmd_chat_send, chat_send_observer, NULL);
 	lv_subject_set_int(&net_connected, 0);
-	lv_subject_copy_string(&net_ip, "Disconnected");
+	lv_subject_copy_string(&net_ip, "");
 
 	lv_timer_create(ui_feeder, 5, NULL);
 	lv_timer_t *t = lv_timer_create(clock_timer_cb, 1000, NULL);
@@ -226,6 +219,9 @@ static void chat_log_append(const char *line)
 	}
 
 	lv_subject_copy_string(&chat_log, buf);
+
+	lv_obj_t *chat_log = lv_obj_find_by_name(lv_screen_active(), "log");
+	lv_obj_scroll_to_y(chat_log, 1000, LV_ANIM_ON);
 }
 
 static void clock_timer_cb(lv_timer_t *timer)
