@@ -1,0 +1,32 @@
+<component>
+	<previews>
+		<preview name="default" width="200" style_bg_color="#color_panel" style_pad_all="12" />
+	</previews>
+
+	<api>
+		<prop name="text" type="string" default="Button" help="Caption" />
+		<prop name="bg_color" type="color" default="#color_accent" help="Background color" />
+		<prop name="text_color" type="color" default="#color_on_accent" help="Caption color" />
+	</api>
+
+	<styles>
+		<style name="style_btn" radius="#radius_sm" pad_hor="#space_lg" pad_ver="#space_sm" shadow_width="0" />
+		<!-- Darken on press instead of swapping colors, so one style covers
+		     every color variant of the button. -->
+		<style name="style_btn_pressed" recolor="0x000000" recolor_opa="30%" />
+	</styles>
+
+	<!-- Attach behaviour as children where the button is used, e.g.
+	     <ui_button text="Send"><event_cb callback="on_send" trigger="clicked"/></ui_button> -->
+	<view
+		extends="lv_button"
+		height="content"
+		style_bg_color="$bg_color"
+		style_text_color="$text_color"
+		style_text_font="font_label"
+	>
+		<style name="style_btn" />
+		<style name="style_btn_pressed" selector="pressed" />
+		<lv_label name="caption" align="center" text="$text" />
+	</view>
+</component>

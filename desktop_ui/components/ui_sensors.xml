@@ -1,0 +1,74 @@
+<component>
+	<previews>
+		<preview name="default" width="392" height="330" style_bg_color="#color_bg" style_pad_all="16" />
+	</previews>
+
+	<!-- (1) Temperature in both units + humidity, and (7) the button that asks
+	     the application for a fresh reading. -->
+	<view extends="ui_panel" title="ENVIRONMENT" width="100%" height="100%">
+		<ui_row gap="#space_lg" cross="start">
+			<ui_stat
+				name="temp_c"
+				caption="Temperature"
+				subject="sensor_temp_c"
+				fmt="%d"
+				unit="°C"
+				color="#color_accent"
+				flex_grow="1"
+			/>
+			<ui_stat
+				name="temp_f"
+				caption="Fahrenheit"
+				subject="sensor_temp_f"
+				fmt="%d"
+				unit="°F"
+				color="#color_blue"
+				flex_grow="1"
+			/>
+		</ui_row>
+
+		<ui_stat
+			name="humidity"
+			caption="Relative humidity"
+			subject="sensor_humidity"
+			fmt="%d"
+			unit="%"
+			color="#color_amber"
+		/>
+
+		<lv_bar
+			name="humidity_bar"
+			width="100%"
+			height="8"
+			min_value="0"
+			max_value="100"
+			bind_value="sensor_humidity"
+			style_bg_color="#color_track"
+			style_bg_opa="100%"
+			style_radius="4"
+			style_bg_color-indicator="#color_amber"
+			style_radius-indicator="4"
+		/>
+
+		<!-- Spacer so the button always sits at the bottom of the card. -->
+		<lv_obj
+			name="spacer"
+			width="100%"
+			flex_grow="1"
+			style_bg_opa="0"
+			style_border_width="0"
+			style_pad_all="0"
+			scrollable="false"
+		/>
+
+		<ui_row main="space_evenly" cross="center">
+			<ui_led name="lamp_red" label="RED" color="#color_red" subject="led_red" />
+			<ui_led name="lamp_green" label="GREEN" color="#color_green" subject="led_green" />
+			<ui_led name="lamp_blue" label="BLUE" color="#color_blue" subject="led_blue" />
+		</ui_row>
+		<!-- Reports what the application says, not what the UI did. -->
+		<lv_label name="status" width="100%" bind_text="sensor_status" style_text_align="center">
+			<style name="style_muted" />
+		</lv_label>
+	</view>
+</component>

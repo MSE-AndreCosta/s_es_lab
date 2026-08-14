@@ -1,0 +1,143 @@
+<component>
+	<previews>
+		<preview name="default" width="470" height="330" style_bg_color="#color_bg" style_pad_all="16" />
+	</previews>
+
+	<styles>
+		<!-- Shared look of the three hands. The pivot is NOT set here on purpose:
+		     inside a <style> sheet the value is parsed with the styledef type
+		     (plain int), so a "50%" would silently become 50 px. Each hand sets
+		     its pivot as local attributes in exact pixels instead. -->
+		<style name="style_hand" bg_opa="100%" border_width="0" />
+	</styles>
+
+	<!-- (2) Analog dial on the left, digital readout on the right.
+	     LVGL cannot attach lv_scale needles from XML, so each hand is a rounded
+	     bar whose transform_rotation is bound to a subject. The application
+	     writes the three angles in 0.1 degree units. -->
+	<view extends="ui_panel" title="CLOCK">
+		<ui_row gap="#space_xl" main="center" cross="center" flex_grow="1">
+			<!-- ========== analog ========== -->
+			<lv_obj
+				name="dial"
+				width="228"
+				height="228"
+				style_radius="114"
+				style_pad_all="0"
+				scrollable="false"
+				scrollbar_mode="off"
+			>
+				<style name="style_inset" />
+
+				<lv_scale
+					name="ticks"
+					width="228"
+					height="228"
+					align="center"
+					mode="round_inner"
+					angle_range="360"
+					rotation="270"
+					min_value="0"
+					max_value="12"
+					total_tick_count="61"
+					major_tick_every="5"
+					label_show="false"
+					style_arc_opa="0"
+					style_length-items="5"
+					style_line_width-items="2"
+					style_line_color-items="#color_track"
+					style_length-indicator="11"
+					style_line_width-indicator="3"
+					style_line_color-indicator="#color_muted"
+				/>
+
+				<!-- Each hand is a bar standing on the dial's center: align=center puts
+				     its middle at the center, y = -height/2 lifts it so its bottom edge
+				     lands exactly there, and the pivot is that bottom edge
+				     (pivot_x = width/2, pivot_y = height). Angle 0 therefore points at
+				     12 o'clock and grows clockwise. Keep y and the pivot in step if you
+				     resize a hand. -->
+				<lv_obj
+					name="hand_hour"
+					width="8"
+					height="62"
+					align="center"
+					y="-31"
+					style_transform_pivot_x="4"
+					style_transform_pivot_y="62"
+					style_radius="4"
+					style_bg_color="#color_text"
+				>
+					<style name="style_hand" />
+					<bind_style_prop prop="transform_rotation" subject="clock_hour_angle" />
+				</lv_obj>
+
+				<lv_obj
+					name="hand_minute"
+					width="6"
+					height="88"
+					align="center"
+					y="-44"
+					style_transform_pivot_x="3"
+					style_transform_pivot_y="88"
+					style_radius="3"
+					style_bg_color="#color_text"
+				>
+					<style name="style_hand" />
+					<bind_style_prop prop="transform_rotation" subject="clock_min_angle" />
+				</lv_obj>
+
+				<!-- 3 px rather than 2: a 2 px bar rendered through a rotated layer
+				     almost disappears at oblique angles. -->
+				<lv_obj
+					name="hand_second"
+					width="3"
+					height="98"
+					align="center"
+					y="-49"
+					style_transform_pivot_x="1"
+					style_transform_pivot_y="98"
+					style_radius="2"
+					style_bg_color="#color_red"
+				>
+					<style name="style_hand" />
+					<bind_style_prop prop="transform_rotation" subject="clock_sec_angle" />
+				</lv_obj>
+
+				<!-- Declared last so the cap covers where the hands meet. -->
+				<lv_obj
+					name="cap"
+					width="14"
+					height="14"
+					align="center"
+					style_radius="7"
+					style_bg_color="#color_red"
+					style_bg_opa="100%"
+					style_border_width="2"
+					style_border_color="#color_inset"
+					style_pad_all="0"
+				/>
+			</lv_obj>
+
+			<!-- ========== digital ========== -->
+			<lv_obj
+				name="digital"
+				width="content"
+				height="content"
+				flex_flow="column"
+				style_pad_all="0"
+				style_pad_row="#space_xs"
+				style_bg_opa="0"
+				style_border_width="0"
+				scrollable="false"
+			>
+				<lv_label name="time" bind_text="clock_time">
+					<style name="style_clock" />
+				</lv_label>
+				<lv_label name="date" bind_text="clock_date">
+					<style name="style_muted" />
+				</lv_label>
+			</lv_obj>
+		</ui_row>
+	</view>
+</component>

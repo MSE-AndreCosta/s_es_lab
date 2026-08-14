@@ -1,0 +1,42 @@
+<component>
+	<previews>
+		<preview name="default" width="150" style_bg_color="#color_panel" style_pad_all="12" />
+	</previews>
+
+	<api>
+		<prop name="caption" type="string" default="Value" help="Small caption above the number" />
+		<prop name="subject" type="subject" default="sensor_temp_c" help="Integer subject providing the number" />
+		<prop name="fmt" type="string" default="%d" help="printf format applied to the subject" />
+		<prop name="unit" type="string" default="" help="Unit rendered small next to the number" />
+		<prop name="color" type="color" default="#color_text" help="Color of the number" />
+	</api>
+
+	<!-- One live readout: caption on top, large bound number, small unit.
+	     The number tracks its subject, so the application only ever calls
+	     lv_subject_set_int() and never touches this widget. -->
+	<view
+		extends="lv_obj"
+		width="content"
+		height="content"
+		flex_flow="column"
+		style_pad_all="0"
+		style_pad_row="2"
+		style_bg_opa="0"
+		style_border_width="0"
+		scrollable="false"
+		scrollbar_mode="off"
+	>
+		<lv_label text="$caption">
+			<style name="style_muted" />
+		</lv_label>
+
+		<ui_row gap="#space_xs" cross="end" width="content">
+			<lv_label name="value" bind_text="$subject" bind_text-fmt="$fmt" style_text_color="$color">
+				<style name="style_value" />
+			</lv_label>
+			<lv_label name="stat_unit" text="$unit" style_translate_y="-6">
+				<style name="style_muted" />
+			</lv_label>
+		</ui_row>
+	</view>
+</component>

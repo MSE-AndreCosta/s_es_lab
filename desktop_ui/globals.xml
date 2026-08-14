@@ -1,0 +1,308 @@
+<globals>
+	<!-- ==========================================================================
+	     DESIGN SYSTEM + DATA MODEL
+	     Dark theme only. Every value the application pushes into the UI is a
+	     subject below; the XML binds to them, so the UI needs almost no C code.
+	     ========================================================================== -->
+
+	<api>
+		<!-- No project-wide enums needed yet. -->
+	</api>
+
+	<consts>
+		<!-- Spacing scale -->
+		<int name="space_xs" value="4" help="Smallest spacing unit" />
+		<int name="space_sm" value="8" help="Small spacing unit" />
+		<int name="space_md" value="12" help="Default spacing unit" />
+		<int name="space_lg" value="16" help="Large spacing unit" />
+		<int name="space_xl" value="24" help="Extra-large spacing unit" />
+
+		<!-- Shape -->
+		<int name="radius_sm" value="8" help="Radius for small controls (fields, chips)" />
+		<int name="radius_lg" value="14" help="Radius for cards / panels" />
+		<int name="border_width" value="1" help="Default hairline border width" />
+
+		<!-- Dark palette -->
+		<color name="color_bg" value="0x0B0E14" help="Screen background" />
+		<color name="color_panel" value="0x151A23" help="Card / panel surface" />
+		<color name="color_inset" value="0x0E121A" help="Recessed surface: fields, play area, joystick pad" />
+		<color name="color_border" value="0x232B38" help="Hairline border between surfaces" />
+		<color name="color_text" value="0xE4E9F2" help="Primary text" />
+		<color name="color_muted" value="0x8A94A6" help="Secondary text, captions, section headers" />
+
+		<!-- Semantic accents -->
+		<color name="color_accent" value="0x4C8DFF" help="Primary accent / active control" />
+		<color name="color_on_accent" value="0xFFFFFF" help="Text drawn on the accent color" />
+		<color name="color_red" value="0xFF5A5F" help="Red LED / danger" />
+		<color name="color_green" value="0x35D07F" help="Green LED / ok / online" />
+		<color name="color_blue" value="0x38BDF8" help="Blue LED / info" />
+		<color name="color_amber" value="0xF5A524" help="Humidity / warning" />
+		<color name="color_track" value="0x2B3444" help="Neutral track behind sliders, arcs, ticks" />
+
+		<opa name="opa_dim" value="22%" help="Opacity of an LED that is switched off" />
+	</consts>
+
+	<fonts>
+		<!-- FontAwesome glyphs used by lv_keyboard's control keys (OK, close,
+		     left/right, backspace, new line, keyboard). font_body falls back to
+		     this so Latin keys still render from Montserrat. -->
+		<bin
+			name="font_symbols"
+			size="16"
+			src_path="fonts/FontAwesome5.ttf"
+			bpp="4"
+			range="0xF00C,0xF00D,0xF021,0xF053-0xF054,0xF077-0xF078,0xF11C,0xF1EB,0xF55A,0xF8A2"
+			as_file="false"
+		/>
+
+		<bin
+			name="font_small"
+			size="13"
+			src_path="fonts/Montserrat-Regular.ttf"
+			bpp="4"
+			range="0x20-0x7F"
+			symbols="°"
+			as_file="false"
+		/>
+		<bin
+			name="font_body"
+			size="16"
+			src_path="fonts/Montserrat-Regular.ttf"
+			bpp="4"
+			range="0x20-0x7F"
+			symbols="°"
+			as_file="false"
+			lv_fallback="font_symbols_data"
+		/>
+		<bin
+			name="font_label"
+			size="13"
+			src_path="fonts/Montserrat-SemiBold.ttf"
+			bpp="4"
+			range="0x20-0x7F"
+			symbols="°"
+			as_file="false"
+		/>
+		<bin
+			name="font_title"
+			size="20"
+			src_path="fonts/Montserrat-SemiBold.ttf"
+			bpp="4"
+			range="0x20-0x7F"
+			symbols="°"
+			as_file="false"
+		/>
+		<bin
+			name="font_value"
+			size="30"
+			src_path="fonts/Montserrat-Bold.ttf"
+			bpp="4"
+			range="0x20-0x7F"
+			symbols="°"
+			as_file="false"
+		/>
+		<bin
+			name="font_clock"
+			size="46"
+			src_path="fonts/Montserrat-Bold.ttf"
+			bpp="4"
+			range="0x20-0x7F"
+			symbols="°"
+			as_file="false"
+		/>
+	</fonts>
+
+	<subjects>
+		<!-- ####################################################################
+		     STATE  -  written by the APPLICATION, only displayed by the UI.
+		     No widget and no code under this project writes any of these; the
+		     UI treats them as read-only. The values below are just what the
+		     Editor's preview shows before anything is connected.
+		     #################################################################### -->
+
+		<!-- ==== 1. Sensors ======================================================
+		     Whole numbers: LV_USE_FLOAT is off in the simulator's lv_conf, so
+		     float subjects would not compile. Round on the application side. -->
+		<int
+			name="sensor_temp_c"
+			value="23"
+			min_value="-40"
+			max_value="125"
+			help="STATE: temperature in whole degrees Celsius"
+		/>
+		<int
+			name="sensor_temp_f"
+			value="73"
+			min_value="-40"
+			max_value="257"
+			help="STATE: temperature in whole degrees Fahrenheit"
+		/>
+		<int name="sensor_humidity" value="48" min_value="0" max_value="100" help="STATE: relative humidity in %" />
+		<string
+			name="sensor_status"
+			value="waiting for first reading"
+			help="STATE: line under the Refresh button, e.g. 'updated 12:04:31'"
+		/>
+
+		<!-- ==== 2. Clock ========================================================
+		     Hand angles are in 0.1 degree units (LVGL's transform_rotation unit),
+		     0 = pointing at 12 o'clock, growing clockwise:
+		       hour   = ((h % 12) * 30 + m / 2) * 10
+		       minute = (m * 6 + s / 10) * 10
+		       second = s * 60                                                   -->
+		<int name="clock_hour_angle" value="1500" min_value="0" max_value="3600" help="Hour hand angle, 0.1 deg" />
+		<int name="clock_min_angle" value="2100" min_value="0" max_value="3600" help="Minute hand angle, 0.1 deg" />
+		<int name="clock_sec_angle" value="1800" min_value="0" max_value="3600" help="Second hand angle, 0.1 deg" />
+		<string name="clock_time" value="05:35:30" help="Digital clock readout, HH:MM:SS" />
+		<string name="clock_date" value="Wed 12 Aug 2026" help="Date line under the digital clock" />
+
+		<!-- ==== 3. Game =========================================================
+		     Player position in pixels inside the play field, measured from its
+		     top-left corner. At 1280x720 the field is 512 x 216 px and the
+		     marker is 24 px, so the usable range is 0..488 by 0..192. -->
+		<int name="player_x" value="244" min_value="0" max_value="488" help="Player X inside the play field, px" />
+		<int name="player_y" value="96" min_value="0" max_value="192" help="Player Y inside the play field, px" />
+		<string name="player_name" value="P1" help="Label shown next to the player marker" />
+
+		<!-- ==== 3b. Joystick ====================================================
+		     Knob offset from the center of the pad in pixels, -46..46. -->
+		<int name="joy_x" value="0" min_value="-46" max_value="46" help="Joystick X offset from center, px" />
+		<int name="joy_y" value="0" min_value="-46" max_value="46" help="Joystick Y offset from center, px" />
+
+		<!-- ==== 4. Network ====================================================== -->
+		<string name="net_ip" value="192.168.1.42" help="IP address of the device we are connected to" />
+		<string name="net_peer" value="sensor-node-01" help="Host name of the peer" />
+		<int name="net_connected" value="1" min_value="0" max_value="1" help="0 = offline, 1 = online" />
+
+		<!-- ==== 5. LED state ====================================================
+		     The ACTUAL state of the three outputs, as reported back by whoever
+		     owns the pins. The lamps in the LED card show these. The switches do
+		     NOT write them: see cmd_led_* below. A switch that is on while its
+		     lamp stays dark therefore means "asked for, not confirmed". -->
+		<int
+			name="led_red"
+			value="0"
+			min_value="0"
+			max_value="1"
+			help="STATE: red LED as actually driven, 0 = off, 1 = on"
+		/>
+		<int
+			name="led_green"
+			value="0"
+			min_value="0"
+			max_value="1"
+			help="STATE: green LED as actually driven, 0 = off, 1 = on"
+		/>
+		<int
+			name="led_blue"
+			value="0"
+			min_value="0"
+			max_value="1"
+			help="STATE: blue LED as actually driven, 0 = off, 1 = on"
+		/>
+
+		<!-- ==== 6. Chat =========================================================
+		     The transcript is owned by the application: the Send button does not
+		     append to it, it only publishes cmd_chat_message. Capped by
+		     UI_SUBJECT_STRING_LENGTH (256 by default) - raise it with
+		     -DUI_SUBJECT_STRING_LENGTH=2048 for a longer history. -->
+		<string
+			name="chat_log"
+			value="[10:02] node-01: link established&#10;[10:02] you: hello there&#10;[10:03] node-01: temperature is stable"
+			help="STATE: the whole chat transcript, newline separated"
+		/>
+
+		<!-- ####################################################################
+		     COMMANDS  -  written by the UI, read by the APPLICATION.
+		     These are the only subjects any widget writes. They carry intent,
+		     never state: acting on them (and reporting the result back through
+		     the STATE subjects above) is the application's job.
+		     #################################################################### -->
+
+		<int name="cmd_led_red" value="0" min_value="0" max_value="1" help="CMD: requested red LED state" />
+		<int name="cmd_led_green" value="0" min_value="0" max_value="1" help="CMD: requested green LED state" />
+		<int name="cmd_led_blue" value="0" min_value="0" max_value="1" help="CMD: requested blue LED state" />
+
+		<int
+			name="cmd_sensor_refresh"
+			value="0"
+			min_value="0"
+			max_value="65535"
+			help="CMD: bumped by the Refresh button. Observe it and take a new reading."
+		/>
+
+		<string name="cmd_chat_message" value="" help="CMD: the message typed by the user, published on Send" />
+		<int
+			name="cmd_chat_send"
+			value="0"
+			min_value="0"
+			max_value="65535"
+			help="CMD: bumped after cmd_chat_message is set. Observe it and transmit."
+		/>
+
+		<!-- ==== UI-local ========================================================
+		     Pure view state: which widget is visible. Owned by the UI on purpose
+		     because it means nothing outside the screen. -->
+		<int name="show_keyboard" value="0" min_value="0" max_value="1" help="UI: 1 = on-screen keyboard visible" />
+
+		<pointer name="camera_image" value="logo" />
+		<int name="camera_image_blur" value="0" />
+	</subjects>
+
+	<images>
+		<data name="logo" src_path="images/lvgl_logo.png" color_format="argb8888" />
+	</images>
+
+	<styles>
+		<!-- Screen surface. text_color and text_font are set here so the whole
+		     widget tree inherits them and no child has to repeat them. -->
+		<style name="style_screen" bg_color="#color_bg" bg_opa="100%" text_color="#color_text" text_font="font_body" />
+
+		<!-- Card surface used by every panel -->
+		<style
+			name="style_card"
+			bg_color="#color_panel"
+			bg_opa="100%"
+			border_color="#color_border"
+			border_width="#border_width"
+			border_opa="100%"
+			radius="#radius_lg"
+			pad_all="#space_lg"
+		/>
+
+		<!-- Recessed surface: input fields, play field, joystick pad -->
+		<style
+			name="style_inset"
+			bg_color="#color_inset"
+			bg_opa="100%"
+			border_color="#color_border"
+			border_width="#border_width"
+			radius="#radius_sm"
+		/>
+
+		<!-- Typography helpers -->
+		<style name="style_section" text_font="font_label" text_color="#color_muted" text_letter_space="1" />
+		<style name="style_muted" text_color="#color_muted" text_font="font_small" />
+		<style name="style_label_small" text_color="#color_text" text_font="font_label" />
+		<style name="style_small_body" text_font="font_small" text_line_space="4" text_color="#color_text" />
+		<style name="style_title" text_font="font_title" text_color="#color_text" />
+		<style name="style_value" text_font="font_value" text_color="#color_text" />
+		<style name="style_clock" text_font="font_clock" text_letter_space="1" text_color="#color_text" />
+
+		<!-- ON color of a switch's indicator. Passed to <ui_toggle on_style="..."/>
+		     because a style sheet cannot take a per-instance color. -->
+		<style name="style_switch_red" bg_color="#color_red" />
+		<style name="style_switch_green" bg_color="#color_green" />
+		<style name="style_switch_blue" bg_color="#color_blue" />
+
+		<!-- Thin scrollbar shared by every scrollable area -->
+		<style
+			name="style_scrollbar"
+			width="#space_xs"
+			radius="#space_xs"
+			bg_color="#color_track"
+			bg_opa="100%"
+			pad_all="2"
+		/>
+	</styles>
+</globals>

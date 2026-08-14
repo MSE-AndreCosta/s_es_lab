@@ -1,0 +1,75 @@
+<component>
+	<previews>
+		<preview name="default" width="520" height="280" style_bg_color="#color_bg" style_pad_all="16" />
+	</previews>
+
+	<api>
+		<prop name="title" type="string" default="TREND" help="Card header" />
+		<prop name="color_a" type="color" default="#color_accent" help="Colour of the first series" />
+		<prop name="color_b" type="color" default="#color_amber" help="Colour of the second series" />
+		<prop name="label_a" type="string" default="Temperature" help="Legend text for the first series" />
+		<prop name="label_b" type="string" default="Humidity" help="Legend text for the second series" />
+	</api>
+
+	<styles>
+		<!-- Division lines only. The series colours come from each
+		     <lv_chart-series>, so `items` deliberately sets no line_color:
+		     that would repaint every series with one colour. -->
+		<style name="style_grid" line_color="#color_border" line_width="1" line_dash_width="2" line_dash_gap="4" />
+		<style name="style_line" line_width="3" line_rounded="true" />
+		<style name="style_point" width="7" height="7" radius="4" />
+	</styles>
+
+	<!-- A two-series line chart.
+	     The values below are DESIGN-TIME data so the card looks right in the
+	     Editor and in a screenshot. Real points are pushed from the
+	     application, which owns the data like every other card here:
+
+	         lv_obj_t * c = lv_obj_find_by_name(lv_screen_active(), "chart");
+	         lv_chart_series_t * s = lv_chart_get_series_next(c, NULL);
+	         lv_chart_set_next_value(c, s, 42);
+
+	     Swap type="line" for "bar" or "scatter" to change the whole look. -->
+	<view extends="ui_panel" title="$title" gap="#space_sm">
+		<lv_chart
+			name="chart"
+			width="100%"
+			flex_grow="1"
+			type="line"
+			point_count="12"
+			update_mode="shift"
+			hor_div_line_count="5"
+			ver_div_line_count="7"
+			style_bg_opa="0"
+			style_border_width="0"
+			style_pad_all="0"
+			scrollbar_mode="off"
+		>
+			<style name="style_grid" />
+			<style name="style_line" selector="items" />
+			<style name="style_point" selector="indicator" />
+
+			<lv_chart-axis axis="primary_y" min_value="0" max_value="100" />
+
+			<lv_chart-series color="$color_a" axis="primary_y" values="62 64 61 66 70 73 71 68 72 76 74 78" />
+			<lv_chart-series color="$color_b" axis="primary_y" values="45 47 44 50 48 52 55 53 49 46 44 42" />
+		</lv_chart>
+
+		<!-- Legend: a dot per series plus its name. -->
+		<ui_row gap="#space_lg">
+			<ui_row gap="#space_sm" width="content">
+				<lv_obj width="10" height="10" style_radius="5" style_bg_color="$color_a" style_bg_opa="100%" style_border_width="0" />
+				<lv_label text="$label_a">
+					<style name="style_muted" />
+				</lv_label>
+			</ui_row>
+
+			<ui_row gap="#space_sm" width="content">
+				<lv_obj width="10" height="10" style_radius="5" style_bg_color="$color_b" style_bg_opa="100%" style_border_width="0" />
+				<lv_label text="$label_b">
+					<style name="style_muted" />
+				</lv_label>
+			</ui_row>
+		</ui_row>
+	</view>
+</component>

@@ -1,0 +1,115 @@
+<component>
+	<previews>
+		<preview name="default" width="900" height="60" style_bg_color="#color_bg" style_pad_all="8" />
+	</previews>
+
+	<api>
+		<prop name="title" type="string" default="Title" help="Application title" />
+		<prop name="subtitle" type="string" default="subtitle" help="One line of context under the title" />
+	</api>
+
+	<styles>
+		<style
+			name="style_chip"
+			bg_color="#color_panel"
+			bg_opa="100%"
+			border_color="#color_border"
+			border_width="1"
+			radius="#radius_sm"
+			pad_hor="#space_md"
+			pad_ver="#space_sm"
+		/>
+		<style name="style_offline" opa="#opa_dim" />
+	</styles>
+
+	<!-- Title on the left, and (4) the address of the device we are connected to
+	     on the right, so it stays visible whatever else is on screen. -->
+	<view extends="ui_row" main="space_between" cross="center" height="100%">
+		<lv_obj
+			name="titles_and_logo"
+			width="content"
+			height="content"
+			flex_flow="row"
+			style_pad_all="0"
+			style_pad_row="2"
+			style_bg_opa="0"
+			style_border_width="0"
+			scrollable="false"
+		>
+			<lv_image src="logo" width="55" height="55" scale_x="90%" scale_y="90%" />
+
+			<lv_obj
+				name="titles"
+				width="content"
+				height="content"
+				flex_flow="column"
+				style_pad_all="0"
+				style_pad_row="2"
+				style_bg_opa="0"
+				style_border_width="0"
+				scrollable="false"
+				style_pad_top="8"
+			>
+				<lv_label name="header_title" text="$title">
+					<style name="style_title" />
+				</lv_label>
+				<lv_label name="header_subtitle" text="$subtitle">
+					<style name="style_muted" />
+				</lv_label>
+			</lv_obj>
+		</lv_obj>
+
+		<!-- A plain lv_obj rather than <ui_row>: ui_row forces a transparent
+		     background as a *local* style, which would win over style_chip. -->
+		<lv_obj
+			name="chip"
+			width="content"
+			height="content"
+			flex_flow="row"
+			style_flex_cross_place="center"
+			style_pad_column="#space_md"
+			scrollable="false"
+			scrollbar_mode="off"
+		>
+			<style name="style_chip" />
+
+			<lv_obj
+				name="dot"
+				width="10"
+				height="10"
+				style_radius="5"
+				style_bg_color="#color_green"
+				style_bg_opa="100%"
+				style_border_width="0"
+				style_shadow_width="10"
+				style_shadow_color="#color_green"
+			>
+				<bind_style name="style_offline" subject="net_connected" ref_value="0" />
+			</lv_obj>
+
+			<!-- Only one of these is ever laid out: `hidden` removes the other
+			     from the layout entirely, so the chip never jumps. -->
+			<lv_label name="online" text="Online" style_text_color="#color_green">
+				<style name="style_label_small" />
+				<bind_flag_if_eq subject="net_connected" flag="hidden" ref_value="0" />
+			</lv_label>
+			<lv_label name="offline" text="Offline" style_text_color="#color_muted">
+				<style name="style_label_small" />
+				<bind_flag_if_not_eq subject="net_connected" flag="hidden" ref_value="0" />
+			</lv_label>
+
+			<lv_obj
+				name="sep"
+				width="1"
+				height="18"
+				style_bg_color="#color_border"
+				style_bg_opa="100%"
+				style_border_width="0"
+			/>
+
+			<lv_label name="ip" bind_text="net_ip">
+				<style name="style_label_small" />
+			</lv_label>
+		</lv_obj>
+	</view>
+</component>

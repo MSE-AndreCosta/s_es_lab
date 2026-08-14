@@ -1,0 +1,49 @@
+<component>
+	<previews>
+		<preview name="default" width="90" height="110" style_bg_color="#color_panel" style_pad_all="12" />
+	</previews>
+
+	<api>
+		<prop name="label" type="string" default="LED" help="Name shown under the indicator" />
+		<prop name="color" type="color" default="#color_green" help="Lit color of the LED" />
+		<prop name="subject" type="subject" default="led_green" help="Integer subject: 0 = off, 1 = on" />
+	</api>
+
+	<styles>
+		<!-- Applied only while the subject is 0, so the lamp goes dark instead of
+		     disappearing: the glow and the ON caption fade out together. -->
+		<style name="style_led_off" opa="#opa_dim" />
+	</styles>
+
+	<!-- One status lamp. Purely observed: nothing here writes to the subject,
+	     it only reflects whatever the application (or the switch card) sets. -->
+	<view
+		extends="lv_obj"
+		width="content"
+		height="content"
+		flex_flow="column"
+		style_pad_all="0"
+		style_pad_row="#space_sm"
+		style_flex_cross_place="center"
+		style_bg_opa="0"
+		style_border_width="0"
+		scrollable="false"
+		scrollbar_mode="off"
+	>
+		<lv_led
+			name="lamp"
+			color="$color"
+			brightness="100%"
+			width="34"
+			height="34"
+			style_shadow_width="18"
+			style_shadow_spread="2"
+		>
+			<bind_style name="style_led_off" subject="$subject" ref_value="0" />
+		</lv_led>
+
+		<lv_label name="name" text="$label">
+			<style name="style_muted" />
+		</lv_label>
+	</view>
+</component>

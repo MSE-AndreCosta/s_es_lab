@@ -1,0 +1,38 @@
+<component>
+	<previews>
+		<preview name="default" width="260" style_bg_color="#color_panel" style_pad_all="12" />
+	</previews>
+
+	<api>
+		<prop name="label" type="string" default="Toggle" help="Row caption" />
+		<prop name="color" type="color" default="#color_green" help="Color of the little dot in front of the caption" />
+		<prop name="subject" type="subject" default="cmd_led_green" help="COMMAND subject the switch writes, 0 or 1. Never a state subject." />
+		<prop
+			name="on_style"
+			type="style"
+			default="style_switch_green"
+			help="Style applied to the switch indicator while ON (see globals.xml)"
+		/>
+	</api>
+
+	<styles>
+		<style name="style_track" bg_color="#color_track" bg_opa="100%" />
+	</styles>
+
+	<!-- Caption on the left, switch on the right. bind_checked is two-way, so
+	     point it at a COMMAND subject only: the switch publishes the user's
+	     request, and the application may also write that subject to pre-set the
+	     control. Whether the request took effect is shown by a separate state
+	     subject somewhere else (here: the lamps in the LED card). -->
+	<view extends="ui_row" main="space_between">
+		<ui_row gap="#space_sm" width="content">
+			<lv_obj name="dot" width="10" height="10" style_radius="5" style_bg_color="$color" style_bg_opa="100%" style_border_width="0" />
+			<lv_label name="caption" text="$label" />
+		</ui_row>
+
+		<lv_switch name="sw" width="52" height="28" bind_checked="$subject">
+			<style name="style_track" selector="main" />
+			<style name="$on_style" selector="checked|indicator" />
+		</lv_switch>
+	</view>
+</component>

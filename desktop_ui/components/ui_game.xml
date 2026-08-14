@@ -1,0 +1,70 @@
+<component>
+	<previews>
+		<preview name="default" width="500" height="274" style_bg_color="#color_bg" style_pad_all="16" />
+	</previews>
+
+	<styles>
+		<style name="style_guide" bg_color="#color_border" bg_opa="100%" border_width="0" />
+	</styles>
+
+	<!-- (3) The play field. There is no game logic here on purpose: another
+	     application owns the simulation and only pushes player_x / player_y,
+	     which move the marker through bound translate_x / translate_y. -->
+	<view extends="ui_panel" title="GAME">
+		<lv_obj
+			name="field"
+			width="100%"
+			flex_grow="1"
+			style_pad_all="0"
+			style_clip_corner="true"
+			scrollable="false"
+			scrollbar_mode="off"
+		>
+			<style name="style_inset" />
+
+			<!-- Faint crosshair so the marker's motion is readable. -->
+			<lv_obj name="guide_h" width="100%" height="1" align="center">
+				<style name="style_guide" />
+			</lv_obj>
+			<lv_obj name="guide_v" width="1" height="100%" align="center">
+				<style name="style_guide" />
+			</lv_obj>
+
+			<!-- Marker anchored top-left; the subjects are its pixel offset from
+			     the field's top-left corner. -->
+			<lv_obj
+				name="player"
+				width="24"
+				height="24"
+				align="top_left"
+				style_radius="12"
+				style_bg_color="#color_accent"
+				style_bg_opa="100%"
+				style_border_width="2"
+				style_border_color="#color_on_accent"
+				style_border_opa="70%"
+				style_shadow_width="20"
+				style_shadow_color="#color_accent"
+				style_pad_all="0"
+				scrollable="false"
+			>
+				<bind_style_prop prop="translate_x" subject="player_x" />
+				<bind_style_prop prop="translate_y" subject="player_y" />
+			</lv_obj>
+		</lv_obj>
+
+		<ui_row main="space_between">
+			<lv_label name="player_label" bind_text="player_name" bind_text-fmt="Player: %s">
+				<style name="style_label_small" />
+			</lv_label>
+			<ui_row gap="#space_lg" width="content">
+				<lv_label name="pos_x" bind_text="player_x" bind_text-fmt="X %d">
+					<style name="style_muted" />
+				</lv_label>
+				<lv_label name="pos_y" bind_text="player_y" bind_text-fmt="Y %d">
+					<style name="style_muted" />
+				</lv_label>
+			</ui_row>
+		</ui_row>
+	</view>
+</component>

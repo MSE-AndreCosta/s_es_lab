@@ -1,0 +1,20 @@
+<component>
+	<previews>
+		<preview name="default" width="320" height="200" style_bg_color="#color_bg" style_pad_all="16" />
+	</previews>
+
+	<api>
+		<prop name="title" type="string" default="Panel" help="Small caps header shown at the top of the card" />
+		<prop name="gap" type="int" default="#space_md" help="Vertical space between the card's children" />
+	</api>
+
+	<!-- The card chrome every section of the dashboard is built on. Other
+	     components extend it (<view extends="ui_panel" title="...">) and their
+	     children are appended in a column below the header. -->
+	<view extends="lv_obj" flex_flow="column" style_pad_row="$gap" scrollable="false" scrollbar_mode="off">
+		<style name="style_card" />
+		<lv_label name="panel_title" text="$title" width="100%">
+			<style name="style_section" />
+		</lv_label>
+	</view>
+</component>

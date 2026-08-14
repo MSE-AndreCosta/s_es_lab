@@ -1,0 +1,40 @@
+<component>
+	<previews>
+		<preview name="default" width="360" height="300" style_bg_color="#color_bg" style_pad_all="16" />
+	</previews>
+
+	<styles>
+		<style name="style_divider" bg_color="#color_border" bg_opa="100%" border_width="0" />
+	</styles>
+
+	<!-- (5) The three lamps show the ACTUAL output state (led_*), which only the
+	     application writes. (8) The switches below only publish a REQUEST
+	     (cmd_led_*); they never light a lamp themselves. So a lamp lights up when
+	     the hardware really switched, and a switch left on above a dark lamp is a
+	     visible "requested but not confirmed". -->
+	<view extends="ui_panel" title="LEDS" gap="#space_sm">
+		<ui_row main="space_evenly" cross="center">
+			<ui_led name="lamp_red" label="RED" color="#color_red" subject="led_red" />
+			<ui_led name="lamp_green" label="GREEN" color="#color_green" subject="led_green" />
+			<ui_led name="lamp_blue" label="BLUE" color="#color_blue" subject="led_blue" />
+		</ui_row>
+
+		<lv_obj name="divider" width="100%" height="1">
+			<style name="style_divider" />
+		</lv_obj>
+
+		<ui_toggle name="sw_red" label="Red" color="#color_red" subject="cmd_led_red" on_style="style_switch_red" />
+		<ui_toggle name="sw_green" label="Green" color="#color_green" subject="cmd_led_green" on_style="style_switch_green" />
+		<ui_toggle name="sw_blue" label="Blue" color="#color_blue" subject="cmd_led_blue" on_style="style_switch_blue" />
+
+		<lv_obj name="spacer" width="100%" flex_grow="1" style_bg_opa="0" style_border_width="0" style_pad_all="0" scrollable="false" />
+
+		<!-- Requests all three off; the lamps follow only once the application
+		     has actually switched the outputs. -->
+		<ui_button name="all_off" text="All off" width="100%" bg_color="#color_track" text_color="#color_text">
+			<subject_set_int_event subject="cmd_led_red" trigger="clicked" value="0" />
+			<subject_set_int_event subject="cmd_led_green" trigger="clicked" value="0" />
+			<subject_set_int_event subject="cmd_led_blue" trigger="clicked" value="0" />
+		</ui_button>
+	</view>
+</component>

@@ -1,0 +1,54 @@
+<screen>
+	<!-- =======================================================================
+	     The single screen of the lab UI, 1280 x 720, dark theme.
+
+	       header       title + the IP of the connected device            (4)
+	       row 1        clock (2) | environment (1)(7) | LEDs (5)(8)
+	       row 2        game (3)  | joystick (3)       | chat (6)
+
+	     Nothing on this screen holds state: every widget is bound to a subject
+	     declared in globals.xml, so the application drives the UI purely with
+	     lv_subject_set_int() / lv_subject_copy_string().
+	     ======================================================================= -->
+	<view
+		width="100%"
+		height="100%"
+		flex_flow="column"
+		style_pad_all="#space_lg"
+		style_pad_row="#space_md"
+		scrollable="false"
+		scrollbar_mode="off"
+	>
+		<style name="style_screen" />
+		<ui_header
+			name="header"
+			width="100%"
+			height="60"
+			title="S_ES IOT application"
+			subtitle="Sensor, telemetry and control dashboard"
+		/>
+
+		<!-- ================ row 1 ================ -->
+		<ui_row name="row_top" gap="#space_md" cross="start" height="300">
+			<ui_clock name="clock" width="40%" height="100%" />
+			<ui_sensors name="sensors" width="25%" height="100%" />
+			<ui_panel title="Camera" style_flex_flow="column" flex_grow="1" height="100%">
+				<lv_obj scrollable="false" style_flex_flow="row" style_bg_opa="0" style_border_opa="0" width="100%">
+					<lv_image
+						bind_src="$camera_image"
+						width="320"
+						height="240"
+						style_blur_radius="$camera_image_blur"
+					/>
+				</lv_obj>
+			</ui_panel>
+		</ui_row>
+
+		<!-- ================ row 2 ================ -->
+		<ui_row name="row_bottom" gap="#space_md" cross="start" flex_grow="1">
+			<ui_game name="game" width="25%" height="100%" />
+			<ui_joystick name="joystick" width="20%" height="100%" />
+			<ui_chat name="chat" flex_grow="1" height="100%" />
+		</ui_row>
+	</view>
+</screen>
