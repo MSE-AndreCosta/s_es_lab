@@ -17,6 +17,7 @@ typedef enum {
 } protocol_message_type_t;
 
 typedef enum {
+	NONE,
 	UP,
 	DOWN,
 	LEFT,

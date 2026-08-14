@@ -18,7 +18,7 @@ int main(void)
 	msgq_init(&server.tx);
 
 	pthread_mutex_init(&server.data_mutex, NULL);
-	pthread_create(&broadcast_thread, NULL, broadcast_task, &server);
+	pthread_create(&broadcast_thread, NULL, broadcast_sender_task, &server);
 	pthread_create(&tx_thread, NULL, transmitter_task, &server);
 	pthread_create(&rx_thread, NULL, receiver_task, &server);
 

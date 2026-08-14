@@ -12,13 +12,10 @@
 
 static char *get_broadcast_payload(void);
 
-#define BROADCAST_PAYLOAD_PERIOD_S 5
-
-void *broadcast_task(void *arg)
+void *broadcast_sender_task(void *arg)
 {
-	server_t *server = (server_t *)arg;
+	bool *shutdown = (bool *)arg;
 	char *mqtt_server_url = NULL;
-	bool allocated = false;
 
 	char *payload = get_broadcast_payload();
 	uint8_t sleep_count = 0;
@@ -32,7 +29,7 @@ void *broadcast_task(void *arg)
 		return NULL;
 	}
 
-	while (!server->shutdown) {
+	while (!shutdown) {
 		if (!payload) {
 			payload = get_broadcast_payload();
 			sleep(1);

@@ -6,8 +6,7 @@
 #include <stdbool.h>
 #include <bits/pthreadtypes.h>
 
-#define SERVER_PORT    19050
-#define BROADCAST_PORT 19048
+#define SERVER_PORT 19050
 
 typedef struct {
 	message_t *data;

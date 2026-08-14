@@ -4,6 +4,7 @@
 #include "server/server.h"
 #include <stdlib.h>
 #include <string.h>
+#include "broadcast/broadcast.h"
 
 void *transmitter_task(void *arg)
 {
