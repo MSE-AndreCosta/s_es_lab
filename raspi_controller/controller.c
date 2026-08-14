@@ -26,6 +26,10 @@ int main(void)
 		return 1;
 	}
 
+	if (!receiver_init(&controller)) {
+		return 1;
+	}
+
 	pthread_create(&receiver_thread, NULL, receiver_task, &controller);
 
 	ui_interface_loop(&controller);
