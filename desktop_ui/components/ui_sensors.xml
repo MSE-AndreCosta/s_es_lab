@@ -62,9 +62,15 @@
 		/>
 
 		<ui_row main="space_evenly" cross="center">
-			<ui_led name="lamp_red" label="RED" color="#color_red" subject="led_red" />
-			<ui_led name="lamp_green" label="GREEN" color="#color_green" subject="led_green" />
-			<ui_led name="lamp_blue" label="BLUE" color="#color_blue" subject="led_blue" />
+			<ui_led name="lamp_red" label="RED" color="#color_red" subject="led_red" cmd_subject="cmd_led_red" />
+			<ui_led
+				name="lamp_green"
+				label="GREEN"
+				color="#color_green"
+				subject="led_green"
+				cmd_subject="cmd_led_green"
+			/>
+			<ui_led name="lamp_blue" label="BLUE" color="#color_blue" subject="led_blue" cmd_subject="cmd_led_blue" />
 		</ui_row>
 		<!-- Reports what the application says, not what the UI did. -->
 		<lv_label name="status" width="100%" bind_text="sensor_status" style_text_align="center">

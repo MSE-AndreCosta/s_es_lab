@@ -7,6 +7,7 @@
 		<prop name="label" type="string" default="LED" help="Name shown under the indicator" />
 		<prop name="color" type="color" default="#color_green" help="Lit color of the LED" />
 		<prop name="subject" type="subject" default="led_green" help="Integer subject: 0 = off, 1 = on" />
+		<prop name="cmd_subject" type="subject" default="cmd_led_green" help="Integer subject: 0 = off, 1 = on" />
 	</api>
 
 	<styles>
@@ -40,6 +41,7 @@
 			style_shadow_spread="2"
 		>
 			<bind_style name="style_led_off" subject="$subject" ref_value="0" />
+			<subject_toggle_event subject="$cmd_subject" trigger="clicked" />
 		</lv_led>
 
 		<lv_label name="name" text="$label">

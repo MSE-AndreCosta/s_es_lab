@@ -33,14 +33,7 @@
 			<ui_clock name="clock" width="40%" height="100%" />
 			<ui_sensors name="sensors" width="25%" height="100%" />
 			<ui_panel title="Camera" style_flex_flow="column" flex_grow="1" height="100%">
-				<lv_obj scrollable="false" style_flex_flow="row" style_bg_opa="0" style_border_opa="0" width="100%">
-					<lv_image
-						bind_src="$camera_image"
-						width="320"
-						height="240"
-						style_blur_radius="$camera_image_blur"
-					/>
-				</lv_obj>
+				<lv_obj scrollable="false" style_flex_flow="row" style_bg_opa="0" style_border_opa="0" width="100%" />
 			</ui_panel>
 		</ui_row>
 
