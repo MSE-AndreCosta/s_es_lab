@@ -3,6 +3,8 @@ set(LV_BUILD_SET_CONFIG_OPTS ON CACHE BOOL "" FORCE)
 
 include(lvgl)
 
+find_package(CURL REQUIRED)
+
 add_executable(image_acquisition image_acquisition.c)
-target_link_libraries(image_acquisition PRIVATE lvgl::lvgl)
+target_link_libraries(image_acquisition PRIVATE lvgl::lvgl CURL::libcurl)
 
