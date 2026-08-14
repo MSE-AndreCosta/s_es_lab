@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <controller.h>
+#include <lvgl/core/lv_group.h>
 
 static void led_cmd_observer(lv_observer_t *observer, lv_subject_t *subject);
 static void chat_send_observer(lv_observer_t *observer, lv_subject_t *subject);
@@ -39,15 +40,25 @@ bool ui_interface_init(msgq_t *tx_fifo, msgq_t *rx_fifo)
 	assert(mouse);
 	lv_indev_t *kb = lv_sdl_keyboard_create();
 	assert(kb);
+	lv_indev_t *wheel = lv_sdl_mousewheel_create();
+	assert(wheel);
+
 	lv_group_t *g = lv_group_create();
 	assert(g);
 
 	lv_group_set_default(g);
 	lv_indev_set_group(kb, g);
+	lv_indev_set_group(wheel, g);
 
 	desktop_ui_init(NULL);
 	lv_screen_load(main_screen_create());
-
+	// lv_obj_t *ta = lv_obj_find_by_name(lv_screen_active(), "log");
+	// lv_obj_t *send = lv_obj_find_by_name(lv_screen_active(), "send");
+	//
+	// lv_group_remove_all_objs(g);
+	// lv_group_add_obj(g, ta);
+	// lv_group_add_obj(g, send);
+	//
 	lv_subject_add_observer(&cmd_led_red, led_cmd_observer, (void *)(uintptr_t)LED_RED);
 	lv_subject_add_observer(&cmd_led_green, led_cmd_observer, (void *)(uintptr_t)LED_GREEN);
 	lv_subject_add_observer(&cmd_led_blue, led_cmd_observer, (void *)(uintptr_t)LED_BLUE);
@@ -146,8 +157,10 @@ static void ui_feeder(lv_timer_t *timer)
 			break;
 		}
 		case PMT_SENSOR:
-			lv_subject_set_int(&sensor_temp_c, (int32_t)lroundf(message->data.sensor.temp_c));
-			lv_subject_set_int(&sensor_temp_f, (int32_t)lroundf(message->data.sensor.temp_f));
+			lv_subject_set_int(&sensor_temp_c,
+					   (int32_t)lroundf(message->data.sensor.temp_c));
+			lv_subject_set_int(&sensor_temp_f,
+					   (int32_t)lroundf(message->data.sensor.temp_f));
 			lv_subject_set_int(&sensor_humidity,
 					   (int32_t)lroundf(message->data.sensor.humidity));
 			lv_subject_copy_string(&sensor_status, "Connected");

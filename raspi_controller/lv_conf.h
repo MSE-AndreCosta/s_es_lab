@@ -14,8 +14,7 @@
 
 #define LV_USE_OBJ_NAME 1
 
-/* JPEG frames are decoded straight from memory, which needs TJPGD + MEMFS:
- * the libjpeg-turbo decoder only supports files. */
+#define LV_USE_LODEPNG     1
 #define LV_USE_TJPGD       1
 #define LV_USE_FS_MEMFS    1
 #define LV_FS_MEMFS_LETTER 'M'

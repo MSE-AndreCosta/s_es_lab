@@ -6,12 +6,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <camera.h>
 
 static void *sender_task(void *arg);
 static void encode_and_send(udp_socket_t *socket, const protocol_message_t *message);
 
 static bool create_sender(controller_t *controller, const protocol_message_t *message,
-			 pthread_t *thread)
+			  pthread_t *thread)
 {
 	char address[sizeof(message->data.ipv4)];
 
@@ -37,6 +38,10 @@ static bool create_sender(controller_t *controller, const protocol_message_t *me
 	}
 	printf("Found server at %s:%d\n", ip, port);
 	pthread_create(thread, NULL, sender_task, controller);
+
+	char camera_url[256];
+	snprintf(camera_url, sizeof(camera_url), "http://%s:8000/stream", ip);
+	camera_init(camera_url);
 
 	return true;
 }

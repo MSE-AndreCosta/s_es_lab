@@ -68,7 +68,7 @@ lv_obj_t * main_screen_create(void)
         lv_obj_set_width(sensors, lv_pct(25));
         lv_obj_set_height(sensors, lv_pct(100));
 
-        lv_obj_t * ui_panel_0 = ui_panel_create(row_top, "Camera", SPACE_MD);
+        lv_obj_t * ui_panel_0 = ui_panel_create(row_top, "Camera", 0);
         lv_obj_set_style_flex_flow(ui_panel_0, LV_FLEX_FLOW_COLUMN, 0);
         lv_obj_set_flex_grow(ui_panel_0, 1);
         lv_obj_set_height(ui_panel_0, lv_pct(100));
@@ -78,6 +78,12 @@ lv_obj_t * main_screen_create(void)
         lv_obj_set_style_bg_opa(lv_obj_1, 0, 0);
         lv_obj_set_style_border_opa(lv_obj_1, 0, 0);
         lv_obj_set_width(lv_obj_1, lv_pct(100));
+        lv_obj_set_height(lv_obj_1, lv_pct(100));
+        lv_obj_t * lv_image_0 = lv_image_create(lv_obj_1);
+        lv_image_bind_src(lv_image_0, &camera_image);
+        lv_obj_set_width(lv_image_0, 320);
+        lv_obj_set_height(lv_image_0, 240);
+        lv_obj_set_style_radius(lv_image_0, 10, 0);
 
         lv_obj_t * row_bottom = ui_row_create(lv_obj_0, SPACE_MD, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
         lv_obj_set_name(row_bottom, "row_bottom");

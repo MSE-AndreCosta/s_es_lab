@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 /** Stream used when neither @ref camera_init nor @c $CAMERA_URL provide one. */
-#define CAMERA_DEFAULT_URL "http://146.136.88.32:8000/stream"
+#define CAMERA_DEFAULT_URL "http://10.229.248.38:8000/stream"
 
 /**
  * @brief Starts acquiring frames from an MJPEG stream.

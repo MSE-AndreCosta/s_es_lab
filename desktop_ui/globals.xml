@@ -245,7 +245,7 @@
 		     because it means nothing outside the screen. -->
 		<int name="show_keyboard" value="0" min_value="0" max_value="1" help="UI: 1 = on-screen keyboard visible" />
 
-		<pointer name="camera_image" value="logo" />
+		<pointer name="camera_image" value="NULL" />
 		<int name="camera_image_blur" value="0" />
 	</subjects>
 

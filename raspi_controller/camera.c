@@ -14,8 +14,8 @@
  * Frame size announced to LVGL. The geometry has to be known up front because
  * the JPEG decoder reports it straight from the descriptor for in-memory images.
  */
-#define CAMERA_FRAME_WIDTH  640
-#define CAMERA_FRAME_HEIGHT 480
+#define CAMERA_FRAME_WIDTH  320
+#define CAMERA_FRAME_HEIGHT 240
 
 /** How often the newest frame is handed over to the UI. */
 #define CAMERA_PUBLISH_PERIOD_MS 30

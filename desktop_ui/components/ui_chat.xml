@@ -4,11 +4,18 @@
 	</previews>
 
 	<styles>
-		<style name="style_input" bg_color="#color_inset" bg_opa="100%" border_color="#color_border" border_width="1" radius="#radius_sm" pad_hor="#space_md" />
+		<style
+			name="style_input"
+			bg_color="#color_inset"
+			text_color="#color_text"
+			bg_opa="100%"
+			border_color="#color_border"
+			border_width="1"
+			radius="#radius_sm"
+			pad_hor="#space_md"
+		/>
 		<style name="style_placeholder" text_color="#color_muted" />
-		<style name="style_cursor" bg_color="#color_accent" bg_opa="100%" />
-		<style name="style_kb" bg_color="#color_inset" bg_opa="100%" radius="#radius_sm" border_color="#color_border" border_width="1" pad_all="#space_xs" />
-		<style name="style_kb_key" bg_color="#color_panel" bg_opa="100%" text_color="#color_text" radius="#radius_sm" />
+		<style name="style_cursor" bg_color="#color_border" bg_opa="100%" />
 	</styles>
 
 	<!-- (6) Transcript + composer. The transcript is a bound label inside a
@@ -16,14 +23,8 @@
 	     binding: the application owns chat_log and just rewrites the string.
 	     Sending does NOT append locally - the message only appears once the
 	     application has echoed it back into chat_log. -->
-	<view extends="ui_panel" title="CHAT" gap="#space_sm">
-		<lv_obj
-			name="log"
-			width="100%"
-			flex_grow="1"
-			style_pad_all="#space_md"
-			scrollbar_mode="auto"
-		>
+	<view extends="ui_panel" title="CHAT" gap="#space_sm" width="100%" height="100%">
+		<lv_obj name="log" width="100%" flex_grow="1" style_pad_all="#space_md" scrollbar_mode="auto">
 			<style name="style_inset" />
 			<style name="style_scrollbar" selector="scrollbar" />
 			<lv_label name="log_text" width="100%" long_mode="wrap" bind_text="chat_log">
@@ -32,23 +33,12 @@
 		</lv_obj>
 
 		<ui_row gap="#space_sm" cross="center">
-			<lv_textarea
-				name="chat_input"
-				flex_grow="1"
-				height="40"
-				one_line="true"
-				placeholder_text="Write a message"
-			>
+			<lv_textarea name="chat_input" flex_grow="1" height="40" one_line="true" placeholder_text="Write a message">
 				<style name="style_input" />
 				<style name="style_placeholder" selector="textarea_placeholder" />
 				<style name="style_cursor" selector="cursor" />
+				<event_cb callback="ui_chat_send" trigger="ready" />
 			</lv_textarea>
-
-			<!-- Toggles the on-screen keyboard; useful on a touch panel, ignore
-			     it when a real keyboard is attached. -->
-			<ui_button name="kb_toggle" text="Keys" width="content" bg_color="#color_track" text_color="#color_text">
-				<subject_toggle_event subject="show_keyboard" trigger="clicked" />
-			</ui_button>
 
 			<!-- The callback only moves the composer's text into
 			     cmd_chat_message and clears the field; it never touches
@@ -58,21 +48,5 @@
 				<event_cb callback="ui_chat_send" trigger="clicked" />
 			</ui_button>
 		</ui_row>
-
-		<!-- floating = ignored by the layout, so the keyboard overlays the card
-		     instead of squeezing the transcript. Hidden until show_keyboard is 1. -->
-		<lv_keyboard
-			name="keyboard"
-			floating="true"
-			align="bottom_mid"
-			width="100%"
-			height="180"
-			mode="text_lower"
-			textarea="chat_input"
-		>
-			<style name="style_kb" />
-			<style name="style_kb_key" selector="items" />
-			<bind_flag_if_eq subject="show_keyboard" flag="hidden" ref_value="0" />
-		</lv_keyboard>
 	</view>
 </component>

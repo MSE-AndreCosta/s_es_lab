@@ -31,10 +31,6 @@ int main(void)
 		return 1;
 	}
 
-	if (!camera_init(NULL)) {
-		LV_LOG_WARN("the camera stream is not available");
-	}
-
 	pthread_create(&receiver_thread, NULL, receiver_task, &controller);
 
 	ui_interface_loop(&controller);

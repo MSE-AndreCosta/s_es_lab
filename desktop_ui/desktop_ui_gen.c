@@ -397,7 +397,7 @@ void desktop_ui_init_gen(const char * asset_path)
     lv_subject_init_int(&show_keyboard, 0);
     lv_subject_set_min_value_int(&show_keyboard, 0);
     lv_subject_set_max_value_int(&show_keyboard, 1);
-    lv_subject_init_pointer(&camera_image, logo);
+    lv_subject_init_pointer(&camera_image, NULL);
     lv_subject_init_int(&camera_image_blur, 0);
 
     /*----------------
