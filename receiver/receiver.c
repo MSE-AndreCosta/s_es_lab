@@ -124,6 +124,13 @@ static void on_request(server_t *server)
 	message->data.player_position = server->player_position;
 	msgq_push(&server->tx, message);
 
+	for (int i = 0; i < 3; i++) {
+		protocol_message_t *message = malloc(sizeof(*message));
+		message->type = PMT_LED;
+		message->data.led = server->leds[i];
+		msgq_push(&server->tx, message);
+	}
+
 	pthread_mutex_unlock(&server->data_mutex);
 
 	for (size_t i = 0; i < server->chat_messages.count; ++i) {

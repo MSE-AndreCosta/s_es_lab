@@ -4,6 +4,7 @@
 #include "server/server.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "broadcast/broadcast.h"
 
 void *transmitter_task(void *arg)
@@ -26,6 +27,11 @@ void *transmitter_task(void *arg)
 			return NULL;
 		}
 		char *payload = protocol_message_encode(msg);
+		if(!payload){
+		    perror("failed to encode message");
+			free(msg);
+			continue;
+		}
 		udp_send_frame(socket, payload, strlen(payload));
 
 		free(msg);

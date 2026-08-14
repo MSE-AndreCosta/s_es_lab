@@ -10,6 +10,8 @@ add_executable(server server.c
 	${REPO_ROOT}/receiver/receiver.c
 	${REPO_ROOT}/led/led.c
 	${REPO_ROOT}/joystick/joystick.c
+	${REPO_ROOT}/sht/sht.c
+	${REPO_ROOT}/reader/reader.c
 )
 
 target_include_directories(server PRIVATE ${REPO_ROOT})
