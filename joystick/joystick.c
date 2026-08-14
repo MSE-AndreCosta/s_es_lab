@@ -1,6 +1,7 @@
 #include <gpiod.h>
 #include "joystick.h"
 #include <stdio.h>
+#include <stddef.h>
 
 struct gpiod_chip *chip = NULL;
 struct gpiod_line_settings *settings = NULL;
@@ -64,6 +65,29 @@ int joystick_read_direction(joystick_t *out)
 
 	gpiod_edge_event_buffer_free(buf);
 	return found;
+}
+
+int joystick_poll_direction(joystick_t *out)
+{
+	const joystick_t directions[] = {UP, DOWN, LEFT, RIGHT, MIDDLE};
+
+	if (!out) {
+		return -1;
+	}
+	*out = NONE;
+
+	for (size_t i = 0; i < sizeof(directions) / sizeof(directions[0]); ++i) {
+		bool pressed;
+		if (joystick_get(directions[i], &pressed) != 0) {
+			return -1;
+		}
+		if (pressed) {
+			*out = directions[i];
+			return 0;
+		}
+	}
+
+	return 0;
 }
 
 int joystick_init(void)

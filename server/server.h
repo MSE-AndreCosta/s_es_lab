@@ -12,6 +12,7 @@ typedef struct {
 	message_t *data;
 	size_t count;
 	size_t capacity;
+	uint32_t last_id; /**< id given to the most recently stored message */
 } chat_messages_t;
 
 typedef struct {

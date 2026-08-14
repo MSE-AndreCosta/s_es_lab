@@ -12,8 +12,9 @@ add_executable(server server.c
 	${REPO_ROOT}/joystick/joystick.c
 	${REPO_ROOT}/sht/sht.c
 	${REPO_ROOT}/reader/reader.c
+	${REPO_ROOT}/game/game.c
 )
 
 target_include_directories(server PRIVATE ${REPO_ROOT})
 link_with_cjson(server)
-target_link_libraries(server PRIVATE gpiod)
+target_link_libraries(server PRIVATE gpiod m)

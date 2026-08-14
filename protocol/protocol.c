@@ -47,23 +47,23 @@ bool protocol_message_decode(const char *buffer, size_t len, protocol_message_t 
 
 	const cJSON *tag = cJSON_GetObjectItemCaseSensitive(root, FIELD_TAG);
 	if (!cJSON_IsString(tag) || !tag->valuestring) {
-		return false;
+		goto err;
 	}
 
-	if (response_tag_from_string(tag->valuestring, &out_message->type) != 0) {
-		return false;
+	if (!response_tag_from_string(tag->valuestring, &out_message->type)) {
+		goto err;
 	}
 
 	const cJSON *data = cJSON_GetObjectItemCaseSensitive(root, FIELD_DATA);
 	if (!cJSON_IsObject(data)) {
-		return false;
+		goto err;
 	}
 
 	switch (out_message->type) {
 	case PMT_JOYSTICK: {
 		const cJSON *joystick = cJSON_GetObjectItemCaseSensitive(data, JOYSTICK);
 		if (!cJSON_IsNumber(joystick)) {
-			return false;
+			goto err;
 		}
 		out_message->data.joystick = joystick->valueint;
 		break;
@@ -72,19 +72,20 @@ bool protocol_message_decode(const char *buffer, size_t len, protocol_message_t 
 	case PMT_SENSOR: {
 		const cJSON *temp_c = cJSON_GetObjectItemCaseSensitive(data, TEMP_C);
 		if (!cJSON_IsNumber(temp_c)) {
-			return false;
+			goto err;
 		}
 		const cJSON *temp_f = cJSON_GetObjectItemCaseSensitive(data, TEMP_F);
 		if (!cJSON_IsNumber(temp_f)) {
-			return false;
+			goto err;
 		}
 		const cJSON *humidity = cJSON_GetObjectItemCaseSensitive(data, HUMIDITY);
 		if (!cJSON_IsNumber(humidity)) {
-			return false;
+			goto err;
 		}
-		out_message->data.sensor.temp_c = temp_c->valueint;
-		out_message->data.sensor.temp_f = temp_f->valueint;
-		out_message->data.sensor.humidity = humidity->valueint;
+		/* valuedouble, not valueint: the sensor values are fractional */
+		out_message->data.sensor.temp_c = temp_c->valuedouble;
+		out_message->data.sensor.temp_f = temp_f->valuedouble;
+		out_message->data.sensor.humidity = humidity->valuedouble;
 		break;
 	}
 	case PMT_REQUEST:
@@ -92,11 +93,11 @@ bool protocol_message_decode(const char *buffer, size_t len, protocol_message_t 
 	case PMT_PLAYER_POSITION: {
 		const cJSON *x = cJSON_GetObjectItemCaseSensitive(data, POS_X);
 		if (!cJSON_IsNumber(x)) {
-			return false;
+			goto err;
 		}
 		const cJSON *y = cJSON_GetObjectItemCaseSensitive(data, POS_Y);
 		if (!cJSON_IsNumber(y)) {
-			return false;
+			goto err;
 		}
 		out_message->data.player_position.x = x->valueint;
 		out_message->data.player_position.y = y->valueint;
@@ -105,7 +106,7 @@ bool protocol_message_decode(const char *buffer, size_t len, protocol_message_t 
 	case PMT_IP_ADDRESS: {
 		const cJSON *ip_address = cJSON_GetObjectItemCaseSensitive(data, IP_ADDRESS);
 		if (!cJSON_IsString(ip_address)) {
-			return false;
+			goto err;
 		}
 		strncpy((char *)out_message->data.ipv4, ip_address->valuestring,
 			sizeof(out_message->data.ipv4) - 1);
@@ -115,11 +116,11 @@ bool protocol_message_decode(const char *buffer, size_t len, protocol_message_t 
 	case PMT_LED: {
 		const cJSON *id = cJSON_GetObjectItemCaseSensitive(data, ID);
 		if (!cJSON_IsNumber(id)) {
-			return false;
+			goto err;
 		}
 		const cJSON *on = cJSON_GetObjectItemCaseSensitive(data, ON);
 		if (!cJSON_IsNumber(on)) {
-			return false;
+			goto err;
 		}
 		out_message->data.led.id = id->valueint;
 		out_message->data.led.on = on->valueint;
@@ -128,16 +129,16 @@ bool protocol_message_decode(const char *buffer, size_t len, protocol_message_t 
 	case PMT_CHAT_MESSAGE: {
 		const cJSON *id = cJSON_GetObjectItemCaseSensitive(data, ID);
 		if (!cJSON_IsNumber(id)) {
-			return false;
+			goto err;
 		}
-		const cJSON *data = cJSON_GetObjectItemCaseSensitive(data, MESSAGE);
-		if (!cJSON_IsString(data)) {
-			return false;
+		/* must not be named `data`: that would shadow the object we look into */
+		const cJSON *text = cJSON_GetObjectItemCaseSensitive(data, MESSAGE);
+		if (!cJSON_IsString(text)) {
+			goto err;
 		}
-		strncpy((char *)out_message->data.message.data, data->valuestring,
-			sizeof(out_message->data.message.data) - 1);
-
-		out_message->data.message.data[sizeof(out_message->data.message) - 1] = '\0';
+		const size_t max_len = sizeof(out_message->data.message.data) - 1;
+		strncpy(out_message->data.message.data, text->valuestring, max_len);
+		out_message->data.message.data[max_len] = '\0';
 		out_message->data.message.id = id->valueint;
 		break;
 	}
@@ -148,22 +149,22 @@ bool protocol_message_decode(const char *buffer, size_t len, protocol_message_t 
 
 err:
 	cJSON_Delete(root);
-	return NULL;
+	return false;
 }
 
 char *protocol_message_encode(const protocol_message_t *message)
 {
 	if (!message) {
-		return false;
+		return NULL;
 	}
 	const char *tag_str = response_tag_to_string(message->type);
 	if (!tag_str) {
-		return false;
+		return NULL;
 	}
 
 	cJSON *root = cJSON_CreateObject();
 	if (!root) {
-		return false;
+		return NULL;
 	}
 
 	if (!cJSON_AddStringToObject(root, FIELD_TAG, tag_str)) {
@@ -231,10 +232,12 @@ static bool response_tag_from_string(const char *str, protocol_message_type_t *o
 		*out = PMT_IP_ADDRESS;
 	} else if (strcmp(str, LED) == 0) {
 		*out = PMT_LED;
+	} else if (strcmp(str, MESSAGE) == 0) {
+		*out = PMT_CHAT_MESSAGE;
 	} else {
 		return false;
 	}
-	return 0;
+	return true;
 }
 
 static cJSON *encode_data(const protocol_message_t *message)
