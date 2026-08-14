@@ -57,7 +57,8 @@ void *receiver_task(void *arg)
 			if (!out_message) {
 				continue;
 			}
-			*out_message = message;
+			out_message->type = PMT_LED;
+			out_message->data.led = message.data.led;
 			msgq_push(&server->tx, out_message);
 			break;
 		}
