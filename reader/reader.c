@@ -17,9 +17,7 @@
 static void update_joystick(server_t *server)
 {
 	joystick_t dir;
-	if (joystick_read_direction(&dir) <= 0) {
-		return;
-	}
+	joystick_read_direction(&dir);
 	if (dir == server->joystick) {
 		return;
 	}
