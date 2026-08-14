@@ -9,6 +9,7 @@ add_executable(server server.c
 	${REPO_ROOT}/msgq/msgq.c
 	${REPO_ROOT}/receiver/receiver.c
 	${REPO_ROOT}/led/led.c
+	${REPO_ROOT}/joystick/joystick.c
 )
 
 target_include_directories(server PRIVATE ${REPO_ROOT})

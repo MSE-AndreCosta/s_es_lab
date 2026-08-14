@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <pthread.h>
 
+#include "led/led.h"
+#include "joystick/joystick.h"
 #include "msgq/msgq.h"
 #include "server/server.h"
 #include "receiver/receiver.h"
@@ -16,6 +18,8 @@ int main(void)
 	server_t server;
 
 	msgq_init(&server.tx);
+	led_init();
+	joystick_init();
 
 	pthread_mutex_init(&server.data_mutex, NULL);
 	pthread_create(&broadcast_thread, NULL, broadcast_sender_task, &server);
@@ -25,6 +29,8 @@ int main(void)
 	for (size_t i = 0; i < sizeof(threads) / sizeof(threads[0]); ++i) {
 		pthread_join(*threads[i], NULL);
 	}
+	led_deinit();
+	joystick_deinit();
 
 	return 0;
 }
