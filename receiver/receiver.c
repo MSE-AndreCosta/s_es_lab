@@ -114,18 +114,18 @@ static void on_request(server_t *server)
 	message->data.sensor = server->sensor_data;
 	msgq_push(&server->tx, message);
 
-	protocol_message_t *joystick = malloc(sizeof(*message));
+	message = malloc(sizeof(*message));
 	message->type = PMT_JOYSTICK;
 	message->data.joystick = server->joystick;
 	msgq_push(&server->tx, message);
 
-	protocol_message_t *player_position = malloc(sizeof(*message));
+	message = malloc(sizeof(*message));
 	message->type = PMT_PLAYER_POSITION;
 	message->data.player_position = server->player_position;
 	msgq_push(&server->tx, message);
 
 	for (int i = 0; i < 3; i++) {
-		protocol_message_t *message = malloc(sizeof(*message));
+		message = malloc(sizeof(*message));
 		message->type = PMT_LED;
 		message->data.led = server->leds[i];
 		msgq_push(&server->tx, message);
@@ -136,7 +136,7 @@ static void on_request(server_t *server)
 	for (size_t i = 0; i < server->chat_messages.count; ++i) {
 		message_t *chat_message = &server->chat_messages.data[i];
 
-		protocol_message_t *message = malloc(sizeof(*message));
+		message = malloc(sizeof(*message));
 		message->type = PMT_CHAT_MESSAGE;
 		message->data.message.id = chat_message->id;
 		memcpy(message->data.message.data, chat_message->data, sizeof(chat_message->data));
