@@ -17,4 +17,4 @@ add_executable(server server.c
 
 target_include_directories(server PRIVATE ${REPO_ROOT})
 link_with_cjson(server)
-target_link_libraries(server PRIVATE gpiod m)
+target_link_libraries(server PRIVATE gpiod oled_lib m)

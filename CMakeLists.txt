@@ -8,6 +8,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 option(BUILD_SERVER OFF)
 option(BUILD_CONTROLLER ON)
 option(BUILD_EXAMPLES OFF)
+option(BUILD_OLED OFF)
 
 include(cjson)
 
@@ -17,6 +18,7 @@ set(REPO_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 if(BUILD_SERVER)
 add_subdirectory(server)
+add_subdirectory(oled)
 endif()
 
 if(BUILD_CONTROLLER)
